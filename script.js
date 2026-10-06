@@ -1,430 +1,189 @@
-const scanButton = document.querySelector("#scanButton");
-const fileInput = document.querySelector("#fileInput");
-const scanMessage = document.querySelector("#scanMessage");
-
-const totalTransactions = document.querySelector("#totalTransactions");
-const flaggedTransactions = document.querySelector("#flaggedTransactions");
-const totalAmount = document.querySelector("#totalAmount");
-const riskLevel = document.querySelector("#riskLevel");
-
-const caseList = document.querySelector("#caseList");
-
-let transactions = [];
-
-
-/* -----------------------------
-   SAMPLE TRANSACTION DATA
------------------------------ */
-
-const sampleTransactions = [
-    {
-        id: "TXN-1042",
-        from: "ACC-4821",
-        to: "ACC-9182",
-        amount: 48000,
-        time: "10:42 AM",
-        risk: "HIGH"
-    },
-    {
-        id: "TXN-1043",
-        from: "ACC-9182",
-        to: "ACC-7731",
-        amount: 47000,
-        time: "10:45 AM",
-        risk: "HIGH"
-    },
-    {
-        id: "TXN-1044",
-        from: "ACC-7731",
-        to: "ACC-6620",
-        amount: 45000,
-        time: "10:51 AM",
-        risk: "MEDIUM"
-    },
-    {
-        id: "TXN-1045",
-        from: "ACC-3210",
-        to: "ACC-5512",
-        amount: 8500,
-        time: "11:12 AM",
-        risk: "LOW"
-    }
+const transactions = [
+    { id: "TX-1001", amount: 50000, from: "ACC-1024", to: "ACC-7812" },
+    { id: "TX-1002", amount: 47500, from: "ACC-7812", to: "ACC-9917" },
+    { id: "TX-1003", amount: 180000, from: "ACC-9917", to: "ACC-4451" },
+    { id: "TX-1004", amount: 12500, from: "ACC-2031", to: "ACC-1024" }
 ];
 
+const transactionCount = document.getElementById("transactionCount");
+const flaggedCount = document.getElementById("flaggedCount");
+const accountCount = document.getElementById("accountCount");
 
-/* -----------------------------
-   INITIAL LOAD
------------------------------ */
+function updateDashboard(data) {
+    if (!data.length) {
+        return;
+    }
 
-document.addEventListener("DOMContentLoaded", () => {
-    transactions = [...sampleTransactions];
+    transactionCount.textContent = data.length.toLocaleString();
 
-    updateDashboard();
-    renderCases();
-});
-
-
-/* -----------------------------
-   CSV FILE IMPORT
------------------------------ */
-
-if (scanButton) {
-    scanButton.addEventListener("click", () => {
-
-        if (fileInput) {
-            fileInput.click();
-        }
+    const flagged = data.filter(transaction => {
+        return transaction.amount >= 100000;
     });
+
+    flaggedCount.textContent = flagged.length;
+
+    const accounts = new Set();
+
+    data.forEach(transaction => {
+        accounts.add(transaction.from);
+        accounts.add(transaction.to);
+    });
+
+    accountCount.textContent = accounts.size;
 }
 
+function handleFile(event) {
+    const file = event.target.files[0];
 
-if (fileInput) {
+    if (!file) {
+        return;
+    }
 
-    fileInput.addEventListener("change", (event) => {
-
-        const file = event.target.files[0];
-
-        if (!file) {
-            return;
-        }
-
-        if (!file.name.toLowerCase().endsWith(".csv")) {
-
-            showMessage(
-                "Please select a CSV transaction file.",
-                "error"
-            );
-
-            return;
-        }
-
-        readCSV(file);
-    });
-}
-
-
-/* -----------------------------
-   READ CSV
------------------------------ */
-
-function readCSV(file) {
-
-    showMessage("Scanning transaction data...", "loading");
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+        alert("Please select a CSV file.");
+        return;
+    }
 
     const reader = new FileReader();
 
-    reader.onload = function (event) {
+    reader.onload = function () {
+        const rows = reader.result
+            .trim()
+            .split(/\r?\n/)
+            .filter(row => row.trim() !== "");
 
-        const csvText = event.target.result;
-
-        try {
-
-            const importedData = parseCSV(csvText);
-
-            if (importedData.length === 0) {
-
-                showMessage(
-                    "No valid transactions found.",
-                    "error"
-                );
-
-                return;
-            }
-
-            transactions = importedData;
-
-            updateDashboard();
-            renderCases();
-
-            showMessage(
-                `${importedData.length} transactions scanned successfully.`,
-                "success"
-            );
-
-        } catch (error) {
-
-            console.error(error);
-
-            showMessage(
-                "Unable to read this CSV file.",
-                "error"
-            );
+        if (rows.length < 2) {
+            alert("The CSV file does not contain enough data.");
+            return;
         }
+
+        const headers = rows[0]
+            .split(",")
+            .map(header => header.trim().toLowerCase());
+
+        const importedData = [];
+
+        for (let i = 1; i < rows.length; i++) {
+            const values = rows[i].split(",");
+
+            const transaction = {};
+
+            headers.forEach((header, index) => {
+                transaction[header] = values[index]
+                    ? values[index].trim()
+                    : "";
+            });
+
+            importedData.push(transaction);
+        }
+
+        processImportedData(importedData);
     };
 
     reader.readAsText(file);
 }
 
+function processImportedData(data) {
+    const amountField = data[0]
+        ? Object.keys(data[0]).find(key =>
+            key.includes("amount") ||
+            key.includes("value")
+        )
+        : null;
 
-/* -----------------------------
-   CSV PARSER
------------------------------ */
+    const fromField = data[0]
+        ? Object.keys(data[0]).find(key =>
+            key.includes("from") ||
+            key.includes("sender")
+        )
+        : null;
 
-function parseCSV(text) {
+    const toField = data[0]
+        ? Object.keys(data[0]).find(key =>
+            key.includes("to") ||
+            key.includes("receiver")
+        )
+        : null;
 
-    const lines = text
-        .trim()
-        .split(/\r?\n/);
-
-    if (lines.length < 2) {
-        return [];
-    }
-
-    const headers = lines[0]
-        .split(",")
-        .map(header => header.trim().toLowerCase());
-
-    const result = [];
-
-    for (let i = 1; i < lines.length; i++) {
-
-        const values = lines[i]
-            .split(",")
-            .map(value => value.trim());
-
-        if (values.length < 3) {
-            continue;
+    const flagged = data.filter(row => {
+        if (!amountField) {
+            return false;
         }
-
-        const row = {};
-
-        headers.forEach((header, index) => {
-            row[header] = values[index] || "";
-        });
 
         const amount = Number(
-            row.amount ||
-            row.value ||
-            row.transaction_amount ||
-            0
+            String(row[amountField]).replace(/[^0-9.-]/g, "")
         );
 
-        const from =
-            row.from ||
-            row.sender ||
-            row.source ||
-            "Unknown";
-
-        const to =
-            row.to ||
-            row.receiver ||
-            row.destination ||
-            "Unknown";
-
-        const id =
-            row.id ||
-            row.transaction_id ||
-            `TXN-${1000 + i}`;
-
-        const time =
-            row.time ||
-            row.timestamp ||
-            row.date ||
-            "Unknown";
-
-        result.push({
-            id: id,
-            from: from,
-            to: to,
-            amount: amount,
-            time: time,
-            risk: calculateRisk(amount)
-        });
-    }
-
-    return result;
-}
-
-
-/* -----------------------------
-   BASIC RISK ENGINE
------------------------------ */
-
-function calculateRisk(amount) {
-
-    if (amount >= 40000) {
-        return "HIGH";
-    }
-
-    if (amount >= 15000) {
-        return "MEDIUM";
-    }
-
-    return "LOW";
-}
-
-
-/* -----------------------------
-   DASHBOARD UPDATE
------------------------------ */
-
-function updateDashboard() {
-
-    const total = transactions.length;
-
-    const flagged = transactions.filter(
-        transaction =>
-            transaction.risk === "HIGH" ||
-            transaction.risk === "MEDIUM"
-    ).length;
-
-    const amount = transactions.reduce(
-        (sum, transaction) =>
-            sum + Number(transaction.amount || 0),
-        0
-    );
-
-    const highRisk = transactions.filter(
-        transaction => transaction.risk === "HIGH"
-    ).length;
-
-
-    if (totalTransactions) {
-        totalTransactions.textContent = total;
-    }
-
-    if (flaggedTransactions) {
-        flaggedTransactions.textContent = flagged;
-    }
-
-    if (totalAmount) {
-        totalAmount.textContent =
-            formatCurrency(amount);
-    }
-
-    if (riskLevel) {
-
-        if (highRisk >= 3) {
-            riskLevel.textContent = "CRITICAL";
-        }
-
-        else if (highRisk > 0) {
-            riskLevel.textContent = "HIGH";
-        }
-
-        else if (flagged > 0) {
-            riskLevel.textContent = "MEDIUM";
-        }
-
-        else {
-            riskLevel.textContent = "LOW";
-        }
-    }
-}
-
-
-/* -----------------------------
-   CASE LIST
------------------------------ */
-
-function renderCases() {
-
-    if (!caseList) {
-        return;
-    }
-
-    caseList.innerHTML = "";
-
-    const suspicious = transactions
-        .filter(transaction =>
-            transaction.risk !== "LOW"
-        )
-        .slice(0, 8);
-
-
-    if (suspicious.length === 0) {
-
-        caseList.innerHTML = `
-            <div class="empty-state">
-                No suspicious transactions detected.
-            </div>
-        `;
-
-        return;
-    }
-
-
-    suspicious.forEach(transaction => {
-
-        const caseElement =
-            document.createElement("div");
-
-        caseElement.className = "case";
-
-        const riskClass =
-            transaction.risk.toLowerCase();
-
-        caseElement.innerHTML = `
-
-            <div class="case-id">
-                <strong>${escapeHTML(transaction.id)}</strong>
-                <span>${escapeHTML(transaction.time)}</span>
-            </div>
-
-            <div class="case-info">
-
-                <strong>
-                    ${escapeHTML(transaction.from)}
-                    → 
-                    ${escapeHTML(transaction.to)}
-                </strong>
-
-                <span>
-                    ${formatCurrency(transaction.amount)}
-                </span>
-
-            </div>
-
-            <div class="risk-tag ${riskClass}">
-                ${transaction.risk}
-            </div>
-        `;
-
-        caseList.appendChild(caseElement);
+        return amount >= 100000;
     });
+
+    transactionCount.textContent = data.length.toLocaleString();
+    flaggedCount.textContent = flagged.length;
+
+    const accounts = new Set();
+
+    data.forEach(row => {
+        if (fromField && row[fromField]) {
+            accounts.add(row[fromField]);
+        }
+
+        if (toField && row[toField]) {
+            accounts.add(row[toField]);
+        }
+    });
+
+    accountCount.textContent = accounts.size;
+
+    showImportMessage(data.length, flagged.length);
 }
 
+function showImportMessage(total, flagged) {
+    const statusText = document.querySelector(".scan-info p");
 
-/* -----------------------------
-   MESSAGE
------------------------------ */
-
-function showMessage(message, type) {
-
-    if (!scanMessage) {
+    if (!statusText) {
         return;
     }
 
-    scanMessage.textContent = message;
+    statusText.textContent =
+        `${total.toLocaleString()} transactions analyzed. ` +
+        `${flagged} transactions require investigation.`;
 
-    scanMessage.className = `scan-message ${type}`;
+    const time = document.querySelector(".scan-time");
+
+    if (time) {
+        time.textContent = "Updated just now";
+    }
 }
 
+document.querySelectorAll(".nav-item").forEach(item => {
+    item.addEventListener("click", function (event) {
+        event.preventDefault();
 
-/* -----------------------------
-   CURRENCY FORMAT
------------------------------ */
+        document.querySelectorAll(".nav-item").forEach(link => {
+            link.classList.remove("active");
+        });
 
-function formatCurrency(value) {
+        this.classList.add("active");
+    });
+});
 
-    return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0
-    }).format(value);
-}
+document.querySelector(".date-btn")?.addEventListener("click", function () {
+    const ranges = [
+        "Last 7 days",
+        "Last 30 days",
+        "Last 90 days"
+    ];
 
+    const current = this.textContent.replace(" ▾", "");
+    const nextIndex = (ranges.indexOf(current) + 1) % ranges.length;
 
-/* -----------------------------
-   SECURITY HELPER
------------------------------ */
+    this.textContent = ranges[nextIndex] + " ▾";
+});
 
-function escapeHTML(value) {
+document.querySelectorAll(".small-btn").forEach(button => {
+    button.addEventListener("click", function () {
+        alert("Detailed investigation view will be available in the next version.");
+    });
+});
 
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
+updateDashboard(transactions);
