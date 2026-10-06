@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FraudFlow — Financial Intelligence</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="brand">
+                <div class="brand-mark">F</div>
+
+                <div>
+                    <h2>FraudFlow</h2>
+                    <span>Financial Intelligence</span>
+                </div>
+            </div>
+
+            <div class="menu-title">WORKSPACE</div>
+
+            <nav class="navigation">
+
+                <a href="#" class="nav-item active">
+                    <span>⌂</span>
+                    Overview
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>↔</span>
+                    Transactions
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>◎</span>
+                    Money Trail
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>◈</span>
+                    Risk Analysis
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>▤</span>
+                    Investigation Cases
+                </a>
+
+            </nav>
+
+            <div class="menu-title">SYSTEM</div>
+
+            <nav class="navigation">
+
+                <a href="#" class="nav-item">
+                    <span>⚙</span>
+                    Settings
+                </a>
+
+                <a href="#" class="nav-item">
+                    <span>?</span>
+                    Help
+                </a>
+
+            </nav>
+
+            <div class="sidebar-bottom">
+
+                <div class="system">
+                    <span class="status-dot"></span>
+
+                    <div>
+                        <strong>Detection Engine</strong>
+                        <small>System operational</small>
+                    </div>
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- MAIN -->
+        <main class="main">
+
+            <!-- TOP BAR -->
+            <header class="topbar">
+
+                <div>
+                    <span class="eyebrow">FINANCIAL MONITORING</span>
+                    <h1>Investigation Overview</h1>
+                </div>
+
+                <div class="top-actions">
+
+                    <button class="date-btn">
+                        Last 30 days ▾
+                    </button>
+
+                    <button class="import-btn" onclick="document.getElementById('fileInput').click()">
+                        + Import Transactions
+                    </button>
+
+                    <input
+                        type="file"
+                        id="fileInput"
+                        accept=".csv"
+                        hidden
+                        onchange="handleFile(event)"
+                    >
+
+                </div>
+
+            </header>
+
+
+            <!-- STATUS -->
+            <section class="scan-status">
+
+                <div class="scan-info">
+
+                    <div class="scan-icon">✓</div>
+
+                    <div>
+                        <strong>Transaction analysis completed</strong>
+
+                        <p>
+                            Latest dataset was analyzed successfully.
+                            43 transactions require investigation.
+                        </p>
+                    </div>
+
+                </div>
+
+                <span class="scan-time">
+                    Updated 2 min ago
+                </span>
+
+            </section>
+
+
+            <!-- SUMMARY CARDS -->
+            <section class="summary-grid">
+
+                <div class="summary-card">
+
+                    <div class="card-top">
+                        <span>Total Transactions</span>
+                        <span class="card-icon">↔</span>
+                    </div>
+
+                    <h2 id="transactionCount">12,486</h2>
+
+                    <p>
+                        <span class="green">+8.2%</span>
+                        compared with previous period
+                    </p>
+
+                </div>
+
+
+                <div class="summary-card alert-card">
+
+                    <div class="card-top">
+                        <span>Flagged Transactions</span>
+                        <span class="card-icon">!</span>
+                    </div>
+
+                    <h2 id="flaggedCount">43</h2>
+
+                    <p>
+                        <span class="red">3.4%</span>
+                        of analyzed transactions
+                    </p>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="card-top">
+                        <span>High-Risk Accounts</span>
+                        <span class="card-icon">◉</span>
+                    </div>
+
+                    <h2 id="accountCount">17</h2>
+
+                    <p>
+                        <span class="red">5 new</span>
+                        detected this period
+                    </p>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="card-top">
+                        <span>Amount Under Review</span>
+                        <span class="card-icon">₹</span>
+                    </div>
+
+                    <h2>₹24.8L</h2>
+
+                    <p>
+                        Across flagged transaction chains
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- CONTENT GRID -->
+            <section class="content-grid">
+
+
+                <!-- MONEY TRAIL -->
+                <div class="panel money-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <span class="eyebrow">TRANSACTION NETWORK</span>
+                            <h2>Money Trail</h2>
+                        </div>
+
+                        <button class="small-btn">
+                            View details →
+                        </button>
+
+                    </div>
+
+                    <p class="panel-description">
+                        Detected transaction path across connected accounts.
+                    </p>
+
+
+                    <div class="money-trail">
+
+                        <div class="account-node">
+
+                            <div class="node-circle normal">
+                                A
+                            </div>
+
+                            <strong>ACC-1024</strong>
+                            <span>Source account</span>
+
+                        </div>
+
+
+                        <div class="connection">
+
+                            <span>₹50,000</span>
+                            <div class="line"></div>
+                            <b>18 min</b>
+
+                        </div>
+
+
+                        <div class="account-node suspicious-node">
+
+                            <div class="node-circle suspicious">
+                                B
+                            </div>
+
+                            <strong>ACC-7812</strong>
+                            <span>Suspicious</span>
+
+                        </div>
+
+
+                        <div class="connection">
+
+                            <span>₹47,500</span>
+                            <div class="line"></div>
+                            <b>11 min</b>
+
+                        </div>
+
+
+                        <div class="account-node danger-node">
+
+                            <div class="node-circle danger">
+                                C
+                            </div>
+
+                            <strong>ACC-9917</strong>
+                            <span>High risk</span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="trail-footer">
+
+                        <div>
+                            <span>Detected path</span>
+                            <strong>3 accounts · 2 hops</strong>
+                        </div>
+
+                        <div>
+                            <span>Risk score</span>
+                            <strong class="risk-number">86 / 100</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RISK PANEL -->
+                <div class="panel risk-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <span class="eyebrow">RISK ENGINE</span>
+                            <h2>Risk Distribution</h2>
+                        </div>
+
+                    </div>
+
+
+                    <div class="risk-main">
+
+                        <div class="risk-circle">
+
+                            <div>
+                                <strong>72</strong>
+                                <span>/100</span>
+                            </div>
+
+                        </div>
+
+                        <div>
+                            <h3>Elevated Risk</h3>
+
+                            <p>
+                                Current activity shows several
+                                abnormal transaction patterns.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="risk-row">
+
+                        <div>
+                            <span>Low</span>
+                            <b>61%</b>
+                        </div>
+
+                        <div class="progress">
+                            <div class="progress-low"></div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="risk-row">
+
+                        <div>
+                            <span>Medium</span>
+                            <b>25%</b>
+                        </div>
+
+                        <div class="progress">
+                            <div class="progress-medium"></div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="risk-row">
+
+                        <div>
+                            <span>High</span>
+                            <b>14%</b>
+                        </div>
+
+                        <div class="progress">
+                            <div class="progress-high"></div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- LOWER GRID -->
+            <section class="lower-grid">
+
+
+                <!-- CASES -->
+                <div class="panel cases-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <span class="eyebrow">INVESTIGATION QUEUE</span>
+                            <h2>Recent Cases</h2>
+                        </div>
+
+                        <button class="small-btn">
+                            View all →
+                        </button>
+
+                    </div>
+
+
+                    <div class="case-list">
+
+
+                        <div class="case">
+
+                            <div class="case-id">
+                                <strong>#FF-0241</strong>
+                                <span>2 min ago</span>
+                            </div>
+
+                            <div class="case-info">
+                                <strong>Multiple account routing</strong>
+                                <span>ACC-1024 → ACC-7812 → ACC-9917</span>
+                            </div>
+
+                            <span class="risk-tag high">
+                                HIGH
+                            </span>
+
+                        </div>
+
+
+                        <div class="case">
+
+                            <div class="case-id">
+                                <strong>#FF-0240</strong>
+                                <span>18 min ago</span>
+                            </div>
+
+                            <div class="case-info">
+                                <strong>Rapid transfer pattern</strong>
+                                <span>7 transfers within 32 minutes</span>
+                            </div>
+
+                            <span class="risk-tag medium">
+                                MEDIUM
+                            </span>
+
+                        </div>
+
+
+                        <div class="case">
+
+                            <div class="case-id">
+                                <strong>#FF-0239</strong>
+                                <span>41 min ago</span>
+                            </div>
+
+                            <div class="case-info">
+                                <strong>Unusual transaction amount</strong>
+                                <span>₹1,80,000 · ACC-9917</span>
+                            </div>
+
+                            <span class="risk-tag high">
+                                HIGH
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- PATTERNS -->
+                <div class="panel patterns-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+                            <span class="eyebrow">DETECTION ENGINE</span>
+                            <h2>Patterns Detected</h2>
+                        </div>
+
+                    </div>
+
+
+                    <div class="pattern">
+
+                        <div class="pattern-icon">
+                            ↗
+                        </div>
+
+                        <div>
+                            <strong>Rapid transfers</strong>
+                            <span>18 occurrences</span>
+                        </div>
+
+                        <b>42%</b>
+
+                    </div>
+
+
+                    <div class="pattern">
+
+                        <div class="pattern-icon">
+                            ◎
+                        </div>
+
+                        <div>
+                            <strong>Account layering</strong>
+                            <span>11 occurrences</span>
+                        </div>
+
+                        <b>26%</b>
+
+                    </div>
+
+
+                    <div class="pattern">
+
+                        <div class="pattern-icon">
+                            !
+                        </div>
+
+                        <div>
+                            <strong>Unusual amount</strong>
+                            <span>8 occurrences</span>
+                        </div>
+
+                        <b>19%</b>
+
+                    </div>
+
+
+                    <div class="pattern">
+
+                        <div class="pattern-icon">
+                            ◇
+                        </div>
+
+                        <div>
+                            <strong>Repeated transfers</strong>
+                            <span>6 occurrences</span>
+                        </div>
+
+                        <b>13%</b>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <footer>
+                FraudFlow · Financial Fraud Detection & Money Trail Analyzer
+                <span>Prototype for academic use</span>
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
